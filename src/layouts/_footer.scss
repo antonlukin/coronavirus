@@ -1,0 +1,19 @@
+.footer {
+  display: flex;
+  align-items: flex-end;
+
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  z-index: 2;
+
+  width: 100%;
+  padding: 0.75rem 1rem;
+
+  @media screen and (max-width: 767px) {
+    position: relative;
+    flex-flow: row wrap;
+
+    padding: 0;
+  }
+}

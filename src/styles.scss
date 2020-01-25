@@ -1,0 +1,53 @@
+$width-site: 90rem;
+
+$color-text: #d3ddef;
+$color-fill: #383d46;
+$color-background: #21252b;
+$color-table: #181a1f;
+
+$gradients: #59353f, #7a2d37, #9c2630,  #bd1e28, #de1621, #ff0e19;
+
+html {
+  box-sizing: border-box;
+}
+
+*, *:before, *:after {
+  box-sizing: inherit;
+}
+
+html, body {
+  height: 100%;
+}
+
+body {
+  position: relative;
+
+  max-width: $width-site;
+  margin: 0 auto;
+  padding: 0;
+
+  font: 300 16px/1.5 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Ubuntu, "Helvetica Neue", sans-serif;
+
+  color: $color-text;
+  background: $color-background;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+  transition: border 0.25s;
+
+  border-bottom: solid 1px rgba($color-text, 0.5);
+
+  &:hover {
+    border-bottom-color: transparent;
+  }
+}
+
+@import "layouts/canvas";
+@import "layouts/header";
+@import "layouts/footer";
+@import "layouts/legend";
+@import "layouts/links";
+@import "layouts/info";
+@import "layouts/button";

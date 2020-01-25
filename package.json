@@ -1,0 +1,36 @@
+{
+  "name": "2019-nCoV",
+  "version": "1.0.0",
+  "author": "Anton Lukin",
+  "description": "Outbreak of novel coronavirus 2019-nCoV",
+  "main": "gulpfile.js",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/antonlukin/2019-ncov.git"
+  },
+  "devDependencies": {
+    "gulp": "^4.0.0",
+    "gulp-autoprefixer": "^6.0.0",
+    "gulp-connect": "^5.7.0",
+    "gulp-plumber": "^1.2.1",
+    "gulp-rename": "^1.4.0",
+    "gulp-sass": "^4.0.1",
+    "gulp-uglify": "^3.0.2"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "browserslist": [
+    "ie >= 9",
+    "ff >= 30",
+    "chrome >= 34",
+    "safari >= 7",
+    "opera >= 23",
+    "ios >= 7",
+    "android >= 4.4"
+  ],
+  "dependencies": {
+    "pinch-zoom-js": "^2.3.4"
+  }
+}

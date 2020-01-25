@@ -1,0 +1,21 @@
+.button {
+  display: none;
+
+  width: 8rem;
+  max-width: 80%;
+  margin: auto;
+  padding: 0.75rem;
+
+  font-size: 0.75rem;
+  font-weight: 500;
+
+  color: rgba($color-text, 0.75);
+  background-color: nth($gradients, 2);
+
+  border: none;
+  border-radius: 3px;
+
+  @media screen and (max-width: 767px) {
+    display: block;
+  }
+}

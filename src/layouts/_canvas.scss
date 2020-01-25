@@ -1,0 +1,56 @@
+.canvas {
+  display: flex;
+  align-items: center;
+  position: relative;
+  visibility: hidden;
+
+  width: 100%;
+  height: 100%;
+  padding: 3rem 1rem;
+
+  transition: opacity 0.5s;
+
+  svg {
+    display: none;
+
+    width: 100%;
+    height: auto;
+    max-height: 100%;
+
+    path {
+      fill: $color-fill;
+      fill-opacity: 1;
+
+      stroke: $color-background;
+      stroke-opacity: 1;
+      stroke-width: 0.5;
+
+      transition: 0.5s;
+
+      @for $i from 1 through 6 {
+        &[data-infected="#{$i}"] {
+          fill: nth($gradients, $i);
+        }
+      }
+    }
+
+    @media screen and (max-width: 767px) {
+      max-height: calc(100% - 6rem);
+    }
+  }
+
+  &.canvas--visible {
+    visibility: visible;
+    opacity: 1;
+
+    svg {
+      display: block;
+    }
+  }
+
+  @media screen and (max-width: 767px) {
+    flex-flow: row wrap;
+    height: auto;
+    padding: 4rem 1rem 1rem;
+  }
+}

@@ -1,0 +1,25 @@
+.links {
+  display: flex;
+  flex-flow: row wrap;
+  justify-content: center;
+
+  width: auto;
+  margin-left: auto;
+
+  a {
+    display: block;
+
+    margin-left: 1rem;
+    font-size: 0.75rem;
+    line-height: 1.25;
+
+    &:first-child {
+      margin-left: 0;
+    }
+  }
+
+  @media screen and (max-width: 767px) {
+    width: 100%;
+    margin: 2rem auto;
+  }
+}

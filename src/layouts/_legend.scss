@@ -1,0 +1,24 @@
+.legend {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  width: 15rem;
+  max-width: 100%;
+  padding: 0.125rem 0.25rem;
+
+  background: linear-gradient(to right, nth($gradients, 1), nth($gradients, 5));
+  border-radius: 2px;
+
+  span {
+    display: block;
+    cursor: default;
+
+    font-size: 0.625rem;
+    color: rgba($color-text, 0.75);
+  }
+
+  @media screen and (max-width: 767px) {
+    display: none;
+  }
+}

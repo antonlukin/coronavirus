@@ -1,0 +1,44 @@
+.header {
+  display: flex;
+  flex-flow: column wrap;
+
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 2;
+
+  width: 100%;
+  padding: 0.75rem 1rem;
+
+  h1 {
+    display: block;
+    cursor: default;
+
+    margin: 0;
+    font-size: 1.25rem;
+    font-weight: 300;
+
+    @media screen and (max-width: 767px) {
+      font-size: 1.125rem;
+      font-weight: 500;
+    }
+  }
+
+  p {
+    display: block;
+
+    margin: 0;
+    font-size: 0.875rem;
+    color: nth($gradients, 4);
+
+    @media screen and (max-width: 767px) {
+      font-size: 0.75rem;
+    }
+  }
+
+  @media screen and (max-width: 767px) {
+    position: relatinve;
+    text-align: center;
+  }
+}
+

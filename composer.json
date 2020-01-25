@@ -1,0 +1,6 @@
+{
+    "require": {
+        "imangazaliev/didom": "^1.14",
+        "vlucas/phpdotenv": "^4.1"
+    }
+}
