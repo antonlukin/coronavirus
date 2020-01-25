@@ -4,6 +4,7 @@ const prefix = require('gulp-autoprefixer');
 const rename = require('gulp-rename');
 const uglify = require('gulp-uglify');
 const plumber = require('gulp-plumber');
+const connect = require('gulp-connect');
 
 
 gulp.task('styles', (done) => {
@@ -44,4 +45,14 @@ gulp.task('watch', (done) => {
 });
 
 
-gulp.task('default', gulp.parallel('styles', 'scripts', 'vendor', 'watch'));
+gulp.task('connect', (done) => {
+  connect.server({
+    root: 'build',
+    port: 8080
+  });
+
+  done();
+});
+
+
+gulp.task('default', gulp.parallel('connect', 'styles', 'scripts', 'vendor', 'watch'));

@@ -1,6 +1,6 @@
 {
   "name": "2019-nCoV",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "author": "Anton Lukin",
   "description": "Outbreak of novel coronavirus 2019-nCoV",
   "main": "gulpfile.js",

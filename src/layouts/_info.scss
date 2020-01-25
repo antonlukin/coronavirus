@@ -13,6 +13,12 @@
   border: solid 1px darken($color-table, 2);
   border-radius: 3px;
 
+  scrollbar-width: none;
+
+  &::-webkit-scrollbar {
+    width: 0;
+  }
+
   table {
     display: table;
 
