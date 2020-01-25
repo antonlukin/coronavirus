@@ -31,6 +31,11 @@ function parse_data($data = []) {
         if (!$row->child(0)->has('td > b')) {
             preg_match('#[A-Z][\w\s]+#', $row->child(0)->text(), $region);
 
+            // Fix China title variability
+            if (strpos(strtolower($region[0]), 'china') !== false) {
+                $region[0] = 'China';
+            }
+
             $info = [
                 'region' => $region[0],
                 'cases' => str_replace(',', '', $row->child(1)->text()),
@@ -50,6 +55,7 @@ function send_message($text, $fault = false) {
     $message = [
         'chat_id' => getenv('TELEGRAM_GROUP'),
         'text' => $text,
+        'disable_notification' => true,
         'parse_mode' => 'HTML'
     ];
 
@@ -104,7 +110,7 @@ function update_channel($current, $parsed) {
             $info['death'] = compare_value($info, $current[$item], 'death');
         }
 
-        $rows[] = str_pad($info['region'], 18) . str_pad($info['cases'], 6) . $info['death'];
+        $rows[] = str_pad($info['region'], 18) . str_pad($info['cases'], 10) . $info['death'];
     }
 
     $message = sprintf('<pre>%s</pre>', implode("\n", $rows));
@@ -114,7 +120,7 @@ function update_channel($current, $parsed) {
 }
 
 try {
-    $storage = __DIR__ . '/build//data.json';
+    $storage = __DIR__ . '/build/data.json';
 
     // Parse data from wiki
     $parsed = parse_data();
