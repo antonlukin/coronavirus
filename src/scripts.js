@@ -141,7 +141,7 @@ var app = {
   // Load json
   request: function () {
     var xhr = new XMLHttpRequest();
-    xhr.open('GET', '/data.json', true);
+    xhr.open('GET', '/data.json?' + new Date().getTime(), true);
     xhr.responseType = 'json';
 
     // Add handler and send request
