@@ -13,6 +13,26 @@ $dotenv->load();
 $dotenv->required(['TELEGRAM_TOKEN', 'TELEGRAM_GROUP', 'TELEGRAM_FAULT']);
 
 
+// Send message to Telegram
+function send_message($text, $fault = false) {
+    $message = [
+        'chat_id' => getenv('TELEGRAM_GROUP'),
+        'text' => $text,
+        'disable_notification' => true,
+        'parse_mode' => 'HTML'
+    ];
+
+    if ($fault === true) {
+        $message['chat_id'] = getenv('TELEGRAM_FAULT');
+    }
+
+    // Telegram bot api url
+    $botapi = 'https://api.telegram.org/bot' . getenv('TELEGRAM_TOKEN') . '/sendMessage?';
+
+    file_get_contents($botapi . http_build_query($message));
+}
+
+
 // Parse data from wiki
 function parse_data($data = []) {
     $page = '2019–20_Wuhan_coronavirus_outbreak';
@@ -47,26 +67,6 @@ function parse_data($data = []) {
     }
 
     return $data;
-}
-
-
-// Send message to Telegram
-function send_message($text, $fault = false) {
-    $message = [
-        'chat_id' => getenv('TELEGRAM_GROUP'),
-        'text' => $text,
-        'disable_notification' => true,
-        'parse_mode' => 'HTML'
-    ];
-
-    if ($fault === true) {
-        $message['chat_id'] = getenv('TELEGRAM_FAULT');
-    }
-
-    // Telegram bot api url
-    $botapi = 'https://api.telegram.org/bot' . getenv('TELEGRAM_TOKEN') . '/sendMessage?';
-
-    file_get_contents($botapi . http_build_query($message));
 }
 
 
@@ -113,7 +113,7 @@ function update_channel($current, $parsed) {
         $rows[] = str_pad($info['region'], 18) . str_pad($info['cases'], 10) . $info['death'];
     }
 
-    $message = sprintf('<pre>%s</pre>', implode("\n", $rows));
+    $message = sprintf("<strong>Latest updates on the Wuhan coronavirus outbreak: </strong>\n<pre>%s</pre>", implode("\n", $rows));
 
     // Send update message to telegram
     send_message($message);
