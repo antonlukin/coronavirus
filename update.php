@@ -90,6 +90,10 @@ function parse_data($data = []) {
 
 // Compare and update item value
 function compare_value($info, $current, $key) {
+    if (!isset($current[$key])) {
+        return $info[$key];
+    }
+
     if ($info[$key] > $current[$key]) {
         return $info[$key] . '+';
     }
@@ -141,7 +145,7 @@ function update_channel($current, $parsed) {
 }
 
 try {
-    $storage = __DIR__ . '/buid/data.json';
+    $storage = __DIR__ . '/build/data.json';
 
     // Parse data from wiki
     $parsed = parse_data();
