@@ -11,11 +11,11 @@ var app = {
     header.appendChild(message);
 
     // Show original message to console
-    console.error('Error:',  text);
+    console.error('Error:', text);
   },
 
   // Change land color
-  color: function(element, cases) {
+  color: function (element, cases) {
     cases = parseInt(cases);
 
     for (var i = 1; i < 6; i++) {
@@ -28,7 +28,7 @@ var app = {
   },
 
   // Hide lands
-  dimmer: function(region) {
+  dimmer: function (region) {
     var lands = app.canvas.querySelectorAll('svg [data-infected]');
 
     for (var i = 0; i < lands.length; i++) {
@@ -41,7 +41,7 @@ var app = {
   },
 
   // Table row click
-  row: function(e) {
+  row: function (e) {
     e.preventDefault();
 
     // Check if row selected
@@ -65,6 +65,42 @@ var app = {
     }
   },
 
+  // Create table header
+  header: function(table, order) {
+    var thead = document.createElement('thead');
+    table.appendChild(thead);
+
+    var tr = document.createElement('tr');
+    thead.appendChild(tr);
+
+    for (var i = 0; i < order.length; i++) {
+      var td = document.createElement('td');
+      td.textContent = order[i];
+      tr.appendChild(td);
+    }
+  },
+
+  // Create table footer
+  footer: function(table, order, total) {
+    var tfoot = document.createElement('tfoot');
+    table.appendChild(tfoot);
+
+    var tr = document.createElement('tr');
+    tfoot.appendChild(tr);
+
+    for (var i = 0; i < order.length; i++) {
+      var td = document.createElement('td');
+      tr.appendChild(td);
+
+      if (order[i] === 'region') {
+        td.textContent = 'total';
+        continue;
+      }
+
+      td.textContent = total[order[i]];
+    }
+  },
+
   // Create table with data
   info: function () {
     var data = app.data;
@@ -72,18 +108,18 @@ var app = {
     // Create table
     var table = document.createElement('table');
 
+    // Table fields
+    var order = ['region', 'cases', 'death', 'cured'];
+
     // Create table header
-    var thead = document.createElement('tr');
-    table.appendChild(thead);
+    app.header(table, order);
 
-    // List of head titles
-    var heads = ['Region', 'Cases', 'Deaths'];
+    // Store total data
+    var total = [];
 
-    for (var i = 0; i < heads.length; i++) {
-      var th = document.createElement('th');
-      th.textContent = heads[i];
-      thead.appendChild(th);
-    }
+    // Create tbody
+    var tbody = document.createElement('tbody');
+    table.appendChild(tbody);
 
     for (var i = 0; i < data.length; i++) {
       var tr = document.createElement('tr');
@@ -94,10 +130,21 @@ var app = {
         td.textContent = data[i][key];
         tr.setAttribute('data-' + key, data[i][key]);
         tr.appendChild(td);
+
+        // Skip region column
+        if (key === 'region') {
+          continue;
+        }
+
+        // Update total
+        total[key] = parseInt(data[i][key]) + (total[key] || 0)
       }
 
-      table.appendChild(tr);
+      tbody.appendChild(tr);
     }
+
+    // Create table footer
+    app.footer(table, order, total);
 
     // Create info block
     var info = document.createElement('div');
@@ -108,7 +155,7 @@ var app = {
   },
 
   // Color infected lands
-  paint: function() {
+  paint: function () {
     var data = app.data;
 
     for (var i = 0; i < data.length; i++) {

@@ -17,6 +17,7 @@
     width: 100%;
     height: auto;
     max-height: 100%;
+    margin-left: 1rem;
 
     path {
       fill: $color-fill;
@@ -37,6 +38,7 @@
 
     @media screen and (max-width: 767px) {
       max-height: calc(100% - 6rem);
+      margin-left: 0;
     }
   }
 

@@ -22,21 +22,28 @@ function send_message($text, $fault = false) {
         'parse_mode' => 'HTML'
     ];
 
+    // Telegram bot api url
+    $botapi = 'https://api.telegram.org/bot' . getenv('TELEGRAM_TOKEN') . '/sendMessage?';
+
     if ($fault === true) {
         $message['chat_id'] = getenv('TELEGRAM_FAULT');
     }
 
-    // Telegram bot api url
-    $botapi = 'https://api.telegram.org/bot' . getenv('TELEGRAM_TOKEN') . '/sendMessage?';
-
-    file_get_contents($botapi . http_build_query($message));
+    @file_get_contents($botapi . http_build_query($message));
 }
 
 
 // Parse data from wiki
 function parse_data($data = []) {
+    $context = stream_context_create([
+        'http'=> [
+            'timeout' => 10,
+            'user_agent' => 'Coronavirus fetch bot / https://coronavirus.zone'
+        ]
+    ]);
+
     $page = '2019–20_Wuhan_coronavirus_outbreak';
-    $wiki = file_get_contents('https://en.wikipedia.org/api/rest_v1/page/html/' . urlencode($page));
+    $wiki = file_get_contents('https://en.wikipedia.org/api/rest_v1/page/html/' . urlencode($page), false, $context);
 
     if ($wiki === false) {
         throw new Exception("Can't get wiki page");
@@ -47,23 +54,34 @@ function parse_data($data = []) {
 
     $rows = $html->find('.infobox .wikitable tr:has(td)');
 
-    foreach ($rows as $row) {
-        if (!$row->child(0)->has('td > b')) {
-            preg_match('#[A-Z][\w\s]+#', $row->child(0)->text(), $region);
+    foreach (array_slice($rows, 0, -1) as $row) {
+        // Parse region from first cell
+        preg_match('#[A-Z][\w\s]+#', $row->child(0)->text(), $region);
 
-            // Fix China title variability
-            if (strpos(strtolower($region[0]), 'china') !== false) {
-                $region[0] = 'China';
-            }
-
-            $info = [
-                'region' => $region[0],
-                'cases' => str_replace(',', '', $row->child(1)->text()),
-                'death' => $row->child(2)->text()
-            ];
-
-            $data[] = array_map('trim', $info);
+        // Fix China title variability
+        if (strpos(strtolower($region[0]), 'china') !== false) {
+            $region[0] = 'China';
         }
+
+        // Parse cases
+        preg_match('#[\d,]+#', $row->child(1)->text(), $cases);
+
+        // Parse death
+        preg_match('#[\d,]+#', $row->child(2)->text(), $death);
+
+        // Parse cured
+        preg_match('#[\d,]+#', $row->child(3)->text(), $cured);
+
+        $info = [
+            'region' => trim($region[0]),
+        ];
+
+        // Add numeric fields
+        foreach (['cases', 'death', 'cured'] as $k => $item) {
+            $info[$item] = str_replace(',', '', $$item[0]);
+        }
+
+        $data[] = $info;
     }
 
     return $data;
@@ -108,9 +126,12 @@ function update_channel($current, $parsed) {
 
             // Updated death field
             $info['death'] = compare_value($info, $current[$item], 'death');
+
+            // Updated cured field
+            $info['cured'] = compare_value($info, $current[$item], 'cured');
         }
 
-        $rows[] = str_pad($info['region'], 18) . str_pad($info['cases'], 10) . $info['death'];
+        $rows[] = str_pad($info['region'], 18) . str_pad($info['cases'], 10) . str_pad($info['death'], 10) . $info['cured'];
     }
 
     $message = sprintf("<strong>Latest updates on the Wuhan coronavirus outbreak: </strong>\n<pre>%s</pre>", implode("\n", $rows));
@@ -120,13 +141,18 @@ function update_channel($current, $parsed) {
 }
 
 try {
-    $storage = __DIR__ . '/build/data.json';
+    $storage = __DIR__ . '/buid/data.json';
 
     // Parse data from wiki
     $parsed = parse_data();
 
+    // Check buggy markup
+    if (count($parsed) < 10) {
+        throw new Exception("Something broken in wiki markup");
+    }
+
     // Get current data json
-    $current = file_get_contents($storage);
+    $current = @file_get_contents($storage);
 
     // Try to update channel data
     update_channel($current, $parsed);
