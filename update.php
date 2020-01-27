@@ -33,6 +33,51 @@ function send_message($text, $fault = false) {
 }
 
 
+// Parse China table
+function parse_china_table($html, $data) {
+    $fields = $html->find('tr:last-child td');
+
+    if (!preg_match('/total/i', $fields[0]->text())) {
+        throw new Exception('China table markup error');
+    }
+
+    $info = [
+        'region' => 'China',
+        'cases' => $fields[1]->text(),
+        'death' => $fields[2]->text()
+    ];
+
+    foreach ($info as &$field) {
+        $field = str_replace(',', '', trim($field));
+    }
+
+    $data[] = $info;
+
+    return $data;
+}
+
+// Parse non-China table
+function parse_data_table($html, $data) {
+    $rows = $html->find('tr');
+
+    foreach (array_slice($rows, 1, -1) as $row) {
+        $info = [
+            'region' => $row->child(0)->text(),
+            'cases' => $row->child(1)->text(),
+            'death' => $row->child(2)->text()
+        ];
+
+        foreach ($info as &$field) {
+            $field = str_replace(',', '', trim($field));
+        }
+
+        $data[] = $info;
+    }
+
+    return $data;
+}
+
+
 // Parse data from wiki
 function parse_data($data = []) {
     $context = stream_context_create([
@@ -42,47 +87,35 @@ function parse_data($data = []) {
         ]
     ]);
 
-    $page = '2019–20_Wuhan_coronavirus_outbreak';
-    $wiki = file_get_contents('https://en.wikipedia.org/api/rest_v1/page/html/' . urlencode($page), false, $context);
+    $page = @file_get_contents('https://bnonews.com/index.php/2020/01/the-latest-coronavirus-cases/', false, $context);
 
-    if ($wiki === false) {
-        throw new Exception("Can't get wiki page");
+    if ($page === false) {
+        throw new Exception("Can't get news page");
     }
 
     $html = new DiDom\Document;
-    $html->loadHtml($wiki);
+    $html->loadHtml($page);
 
-    $rows = $html->find('.infobox .wikitable tr:has(td)');
+    // Get all tables
+    $tables = $html->find('.wp-block-table');
 
-    foreach (array_slice($rows, 0, -1) as $row) {
-        // Parse region from first cell
-        preg_match('#[A-Z][\w\s]+#', $row->child(0)->text(), $region);
+    foreach ($tables as $table) {
+        $text = $table->text();
 
-        // Fix China title variability
-        if (strpos(strtolower($region[0]), 'china') !== false) {
-            $region[0] = 'China';
+        // Collect data from China
+        if (preg_match('/china/i', $text)) {
+            $data = parse_china_table($table, $data);
         }
 
-        // Parse cases
-        preg_match('#[\d,]+#', $row->child(1)->text(), $cases);
-
-        // Parse death
-        preg_match('#[\d,]+#', $row->child(2)->text(), $death);
-
-        // Parse cured
-        preg_match('#[\d,]+#', $row->child(3)->text(), $cured);
-
-        $info = [
-            'region' => trim($region[0]),
-        ];
-
-        // Add numeric fields
-        foreach (['cases', 'death', 'cured'] as $k => $item) {
-            $info[$item] = str_replace(',', '', $$item[0]);
+        // Collect Regions and Internationas
+        if (preg_match('/regions|international/i', $text)) {
+            $data = parse_data_table($table, $data);
         }
-
-        $data[] = $info;
     }
+
+    // Sort by cases
+    $cases = array_column($data, 'cases');
+    array_multisort($cases, SORT_DESC, $data);
 
     return $data;
 }
@@ -108,17 +141,6 @@ function compare_value($info, $current, $key) {
 
 // Update data in channel
 function update_channel($current, $parsed) {
-    if ($current === false) {
-        return false;
-    }
-
-    $current = json_decode($current, JSON_OBJECT_AS_ARRAY);
-
-    // Don't send if equal
-    if ($current === $parsed) {
-        return false;
-    }
-
     $rows = [];
 
     foreach ($parsed as $info) {
@@ -130,12 +152,9 @@ function update_channel($current, $parsed) {
 
             // Updated death field
             $info['death'] = compare_value($info, $current[$item], 'death');
-
-            // Updated cured field
-            $info['cured'] = compare_value($info, $current[$item], 'cured');
         }
 
-        $rows[] = str_pad($info['region'], 18) . str_pad($info['cases'], 10) . str_pad($info['death'], 10) . $info['cured'];
+        $rows[] = "{$info['region']}\n{$info['cases']} / {$info['death']}";
     }
 
     $message = sprintf("<strong>Latest updates on the Wuhan coronavirus outbreak: </strong>\n<pre>%s</pre>", implode("\n", $rows));
@@ -152,14 +171,26 @@ try {
 
     // Check buggy markup
     if (count($parsed) < 10) {
-        throw new Exception("Something broken in wiki markup");
+        throw new Exception("Something broken in news page markup");
     }
 
     // Get current data json
     $current = @file_get_contents($storage);
 
-    // Try to update channel data
-    update_channel($current, $parsed);
+    if ($current !== false) {
+        $backup = __DIR__ . '/backup/data-' . time() . '.json';
+
+        // Backup current data
+        file_put_contents($backup, $current);
+
+        // Get JSON from file data
+        $current = json_decode($current, JSON_OBJECT_AS_ARRAY);
+
+        // Don't send if equal
+        if ($current !== $parsed) {
+            update_channel($current, $parsed);
+        }
+    }
 
     // Update data file
     file_put_contents($storage, json_encode($parsed));

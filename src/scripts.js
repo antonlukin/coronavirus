@@ -109,7 +109,7 @@ var app = {
     var table = document.createElement('table');
 
     // Table fields
-    var order = ['region', 'cases', 'death', 'cured'];
+    var order = ['region', 'cases', 'death'];
 
     // Create table header
     app.header(table, order);
