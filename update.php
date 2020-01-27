@@ -175,19 +175,20 @@ try {
     }
 
     // Get current data json
-    $current = @file_get_contents($storage);
+    $saved = @file_get_contents($storage);
 
-    if ($current !== false) {
-        $backup = __DIR__ . '/library/data-' . time() . '.json';
-
-        // Backup current data
-        file_put_contents($backup, $current);
-
+    if ($saved !== false) {
         // Get JSON from file data
-        $current = json_decode($current, JSON_OBJECT_AS_ARRAY);
+        $current = json_decode($saved, JSON_OBJECT_AS_ARRAY);
 
-        // Don't send if equal
+        // Check if not updated
         if ($current !== $parsed) {
+            $backup = __DIR__ . '/library/data-' . time() . '.json';
+
+            // Backup current data
+            file_put_contents($backup, $saved);
+
+            // Update channel message
             update_channel($current, $parsed);
         }
     }
