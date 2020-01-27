@@ -154,7 +154,7 @@ function update_channel($current, $parsed) {
             $info['death'] = compare_value($info, $current[$item], 'death');
         }
 
-        $rows[] = "{$info['region']}\n{$info['cases']} / {$info['death']}";
+        $rows[] = "{$info['region']} - {$info['cases']} / {$info['death']}";
     }
 
     $message = sprintf("<strong>Latest updates on the Wuhan coronavirus outbreak: </strong>\n<pre>%s</pre>", implode("\n", $rows));
@@ -178,7 +178,7 @@ try {
     $current = @file_get_contents($storage);
 
     if ($current !== false) {
-        $backup = __DIR__ . '/backup/data-' . time() . '.json';
+        $backup = __DIR__ . '/library/data-' . time() . '.json';
 
         // Backup current data
         file_put_contents($backup, $current);
