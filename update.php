@@ -48,7 +48,7 @@ function parse_china_table($html, $data) {
     ];
 
     foreach ($info as &$field) {
-        $field = str_replace(',', '', trim($field));
+        $field = str_replace([',', '*'], '', trim($field));
     }
 
     $data[] = $info;
@@ -68,7 +68,7 @@ function parse_data_table($html, $data) {
         ];
 
         foreach ($info as &$field) {
-            $field = str_replace(',', '', trim($field));
+            $field = str_replace([',', '*'], '', trim($field));
         }
 
         $data[] = $info;
@@ -122,16 +122,16 @@ function parse_data($data = []) {
 
 
 // Compare and update item value
-function compare_value($info, $current, $key) {
-    if (!isset($current[$key])) {
-        return $info[$key];
+function compare_value($info, $current, $item, $key) {
+    if ($item === false || empty($current[$item][$key])) {
+        $current[$item][$key] = 0;
     }
 
-    if ($info[$key] > $current[$key]) {
+    if ($info[$key] > $current[$item][$key]) {
         return $info[$key] . '+';
     }
 
-    if ($info[$key] < $current[$key]) {
+    if ($info[$key] < $current[$item][$key]) {
         return $info[$key] . '-';
     }
 
@@ -146,14 +146,13 @@ function update_channel($current, $parsed) {
     foreach ($parsed as $info) {
         $item = array_search($info['region'], array_column($current, 'region'));
 
-        if (is_int($item)) {
-            // Update cases field
-            $info['cases'] = compare_value($info, $current[$item], 'cases');
+        // Update cases field
+        $info['cases'] = compare_value($info, $current, $item, 'cases');
 
-            // Updated death field
-            $info['death'] = compare_value($info, $current[$item], 'death');
-        }
+        // Updated death field
+        $info['death'] = compare_value($info, $current, $item, 'death');
 
+        // Add new row
         $rows[] = "{$info['region']} - {$info['cases']} / {$info['death']}";
     }
 
