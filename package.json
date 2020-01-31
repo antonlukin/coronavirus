@@ -1,6 +1,6 @@
 {
   "name": "2019-ncov",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "author": "Anton Lukin",
   "description": "Outbreak of novel coronavirus 2019-nCoV",
   "main": "gulpfile.js",
@@ -29,8 +29,5 @@
     "opera >= 23",
     "ios >= 7",
     "android >= 4.4"
-  ],
-  "dependencies": {
-    "pinch-zoom-js": "^2.3.4"
-  }
+  ]
 }

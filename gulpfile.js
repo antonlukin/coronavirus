@@ -30,14 +30,6 @@ gulp.task('scripts', (done) => {
 })
 
 
-gulp.task('vendor', (done) => {
-  gulp.src('./node_modules/pinch-zoom-js/dist/pinch-zoom.umd.min.js')
-    .pipe(gulp.dest('./build/assets/'));
-
-  done();
-});
-
-
 gulp.task('watch', (done) => {
   gulp.watch('./src/**/*', gulp.series('styles', 'scripts'));
 
@@ -55,4 +47,4 @@ gulp.task('connect', (done) => {
 });
 
 
-gulp.task('default', gulp.parallel('connect', 'styles', 'scripts', 'vendor', 'watch'));
+gulp.task('default', gulp.parallel('connect', 'styles', 'scripts', 'watch'));
