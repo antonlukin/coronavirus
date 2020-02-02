@@ -49,6 +49,10 @@ function parse_china_table($html, $data) {
 
     foreach ($info as &$field) {
         $field = str_replace([',', '*'], '', trim($field));
+
+        if (strlen($field) === 0) {
+            $field = 0;
+        }
     }
 
     $data[] = $info;
@@ -69,6 +73,10 @@ function parse_data_table($html, $data) {
 
         foreach ($info as &$field) {
             $field = str_replace([',', '*'], '', trim($field));
+
+            if (strlen($field) === 0) {
+                $field = 0;
+            }
         }
 
         $data[] = $info;
