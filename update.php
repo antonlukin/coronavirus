@@ -111,12 +111,12 @@ function parse_data($data = []) {
         $text = $table->text();
 
         // Collect data from China
-        if (preg_match('/china/i', $text)) {
+        if (preg_match('/CHINA/', $text)) {
             $data = parse_china_table($table, $data);
         }
 
         // Collect Regions and Internationas
-        if (preg_match('/regions|international/i', $text)) {
+        if (preg_match('/PLACES/', $text)) {
             $data = parse_data_table($table, $data);
         }
     }
