@@ -160,8 +160,14 @@ function update_channel($current, $parsed) {
         // Updated death field
         $info['death'] = compare_value($info, $current, $item, 'death');
 
-        // Add new row
-        $rows[] = "{$info['region']} - {$info['cases']} / {$info['death']}";
+        // Create data string
+        $data = "{$info['region']} - {$info['cases']} / {$info['death']}";
+
+        if ($info !== $current[$item]) {
+            $data = " • " . $data;
+        }
+
+        $rows[] = $data;
     }
 
     $message = sprintf("<strong>Latest updates on the Wuhan coronavirus outbreak: </strong>\n<pre>%s</pre>", implode("\n", $rows));
