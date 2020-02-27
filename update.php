@@ -136,11 +136,11 @@ function compare_value($info, $current, $item, $key) {
     }
 
     if ($info[$key] > $current[$item][$key]) {
-        return $current[$item][$key] . ' -> ' . $info[$key] . '('. ($info[$key] - $current[$item][$key]) . '+)';
+        return $current[$item][$key] . ' -> ' . $info[$key] . '(+'. ($info[$key] - $current[$item][$key]) . ')';
     }
 
     if ($info[$key] < $current[$item][$key]) {
-        return $current[$item][$key] . ' -> ' . $info[$key] . '('. ($info[$key] - $current[$item][$key]) .'-)';
+        return $current[$item][$key] . ' -> ' . $info[$key] . '(-'. ($info[$key] - $current[$item][$key]) .')';
     }
 
     return $info[$key];
