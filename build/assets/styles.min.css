@@ -254,6 +254,7 @@ a {
       -webkit-flex: 0 0 100%;
           -ms-flex: 0 0 100%;
               flex: 0 0 100%;
+      max-height: 30rem;
       margin-top: 2rem; } }
 
 .button {
