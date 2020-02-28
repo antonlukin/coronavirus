@@ -63,6 +63,8 @@ a {
         fill: #de1621; }
       .canvas svg path[data-infected="6"] {
         fill: #ff0e19; }
+      .canvas svg path[data-infected] {
+        cursor: pointer; }
     @media screen and (max-width: 767px) {
       .canvas svg {
         max-height: calc(100% - 6rem);
