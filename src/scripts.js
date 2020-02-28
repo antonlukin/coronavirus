@@ -40,6 +40,18 @@ var app = {
     }
   },
 
+  // Land click
+  land: function(e) {
+    e.preventDefault();
+    var title = this.getAttribute('title');
+    // try find tr by title
+    var tr = document.querySelector('tr[data-region="' + title + '"]');
+    // call row func with row and empty event
+    if (tr) {
+      app.row.call(tr, {preventDefault: function(){}});
+    }
+  },
+
   // Table row click
   row: function (e) {
     e.preventDefault();
@@ -166,6 +178,7 @@ var app = {
 
       if (land !== null) {
         app.color(land, info.cases);
+        land.addEventListener('click', app.land);
       }
     }
   },
