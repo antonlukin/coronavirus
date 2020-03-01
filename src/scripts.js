@@ -46,9 +46,13 @@ var app = {
     var title = this.getAttribute('title');
     // try find tr by title
     var tr = document.querySelector('tr[data-region="' + title + '"]');
-    // call row func with row and empty event
     if (tr) {
+      // call row func with row and empty event
       app.row.call(tr, {preventDefault: function(){}});
+      // try to scroll to tr in table
+      if (typeof tr.scrollIntoView === 'function') {
+        tr.scrollIntoView();
+      }
     }
   },
 
