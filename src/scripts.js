@@ -51,7 +51,7 @@ var app = {
       app.row.call(tr, {preventDefault: function(){}});
       // try to scroll to tr in table
       if (typeof tr.scrollIntoView === 'function') {
-        tr.scrollIntoView();
+        tr.scrollIntoView({block: 'center', behavior: 'smooth'});
       }
     }
   },
