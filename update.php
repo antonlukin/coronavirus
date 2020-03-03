@@ -33,53 +33,38 @@ function send_message($text, $fault = false) {
 }
 
 
-// Parse China table
-function parse_china_table($html, $data) {
-    $fields = $html->find('tr:last-child td');
-
-    if (!preg_match('/total/i', $fields[0]->text())) {
-        throw new Exception('China table markup error');
-    }
-
-    $info = [
-        'region' => 'China',
-        'cases' => $fields[1]->text(),
-        'death' => $fields[2]->text()
-    ];
-
-    foreach ($info as &$field) {
-        $field = str_replace([',', '*'], '', trim($field));
-
-        if (strlen($field) === 0) {
-            $field = 0;
-        }
-    }
-
-    $data[] = $info;
-
-    return $data;
-}
-
 // Parse non-China table
-function parse_data_table($html, $data) {
+function parse_table($html, $data = []) {
     $rows = $html->find('tr');
 
+    // Set initial skip value
+    $skip = true;
+
     foreach (array_slice($rows, 1, -1) as $row) {
-        $info = [
-            'region' => $row->child(0)->text(),
-            'cases' => $row->child(1)->text(),
-            'death' => $row->child(2)->text()
-        ];
+        if (preg_match('/china total/i', $row->child(1)->text())) {
+            $data[] = [
+                'region' => 'China',
+                'cases' => $row->child(2)->text(),
+                'death' => $row->child(3)->text()
+            ];
 
-        foreach ($info as &$field) {
-            $field = str_replace([',', '*'], '', trim($field));
-
-            if (strlen($field) === 0) {
-                $field = 0;
-            }
+            continue;
         }
 
-        $data[] = $info;
+        if (preg_match('/other places/i', $row->child(1)->text())) {
+            $skip = false;
+            continue;
+        }
+
+        if ($skip === true) {
+            continue;
+        }
+
+        $data[] = [
+            'region' => $row->child(1)->text(),
+            'cases' => $row->child(2)->text(),
+            'death' => $row->child(3)->text()
+        ];
     }
 
     return $data;
@@ -95,7 +80,7 @@ function parse_data($data = []) {
         ]
     ]);
 
-    $page = @file_get_contents('https://bnonews.com/index.php/2020/01/the-latest-coronavirus-cases/', false, $context);
+    $page = @file_get_contents('https://docs.google.com/spreadsheets/u/0/d/e/2PACX-1vR30F8lYP3jG7YOq8es0PBpJIE5yvRVZffOyaqC0GgMBN6yt0Q-NI8pxS7hd1F9dYXnowSC6zpZmW9D/pubhtml/sheet?gid=0', false, $context);
 
     if ($page === false) {
         throw new Exception("Can't get news page");
@@ -105,21 +90,21 @@ function parse_data($data = []) {
     $html->loadHtml($page);
 
     // Get all tables
-    $tables = $html->find('.wp-block-table');
+    $table = $html->first('table.waffle');
 
-    foreach ($tables as $table) {
-        $text = $table->text();
+    // Parse data from table
+    $data = parse_table($table);
 
-        // Collect data from China
-        if (preg_match('/CHINA/', $text)) {
-            $data = parse_china_table($table, $data);
-        }
+    foreach($data as &$info) {
+        foreach ($info as &$field) {
+            $field = str_replace([',', '*'], '', trim($field));
 
-        // Collect Regions and Internationas
-        if (preg_match('/PLACES/', $text)) {
-            $data = parse_data_table($table, $data);
+            if (strlen($field) === 0) {
+                $field = 0;
+            }
         }
     }
+
 
     // Sort by cases
     $cases = array_column($data, 'cases');
