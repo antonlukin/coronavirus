@@ -40,28 +40,15 @@ function parse_table($html, $data = []) {
     // Set initial skip value
     $skip = true;
 
-    foreach (array_slice($rows, 1, -1) as $row) {
-        if (preg_match('/china total/i', $row->child(1)->text())) {
-            $data[] = [
-                'region' => 'China',
-                'cases' => $row->child(2)->text(),
-                'death' => $row->child(3)->text()
-            ];
+    foreach (array_slice($rows, 7, -4) as $row) {
+        $region = $row->child(1)->text();
 
-            continue;
-        }
-
-        if (preg_match('/other places/i', $row->child(1)->text())) {
-            $skip = false;
-            continue;
-        }
-
-        if ($skip === true) {
-            continue;
+        if (preg_match('/china/i', $region)) {
+            $region = 'China';
         }
 
         $data[] = [
-            'region' => $row->child(1)->text(),
+            'region' => $region,
             'cases' => $row->child(2)->text(),
             'death' => $row->child(3)->text()
         ];
