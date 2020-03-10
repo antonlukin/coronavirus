@@ -1,0 +1,20 @@
+#tooltip {
+  width: auto;
+  height: 30px;
+  pointer-events: none;
+  position: fixed;
+  padding: 0 15px;
+  margin: 0 auto;
+  background-color: black;
+  color: white;
+  border-radius: 5px;
+  justify-content: center;
+  align-items: center;
+  display: flex;
+  font-size: 13px;
+  visibility: hidden;
+
+  &.active {
+    visibility: visible;
+  }
+}

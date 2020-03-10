@@ -170,6 +170,26 @@ var app = {
     app.canvas.insertBefore(info, app.canvas.firstChild);
   },
 
+  // Init tooltip
+  tooltip: function (land, info) {
+    var element = document.getElementById('tooltip');
+
+    land.addEventListener('mousemove', function (event) {
+      element.style.left = event.clientX + 'px';
+      element.style.top = event.clientY + 'px';
+      element.innerText = info.region + ' – ' + info.cases + " / " + info.death;
+      element.classList.add('active');
+    });
+
+    land.addEventListener('mouseout', function () {
+      element.classList.remove('active');
+    });
+
+    land.addEventListener('mousedown', function () {
+      element.classList.remove('active');
+    });
+  },
+
   // Color infected lands
   paint: function () {
     var data = app.data;
@@ -182,6 +202,7 @@ var app = {
 
       if (land !== null) {
         app.color(land, info.cases);
+        app.tooltip(land, info);
         land.addEventListener('click', app.land);
       }
     }
