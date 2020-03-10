@@ -272,3 +272,27 @@ a {
   @media screen and (max-width: 767px) {
     .button {
       display: block; } }
+
+#tooltip {
+  width: auto;
+  height: 30px;
+  pointer-events: none;
+  position: fixed;
+  padding: 0 15px;
+  margin: 0 auto;
+  background-color: black;
+  color: white;
+  border-radius: 5px;
+  -webkit-justify-content: center;
+      -ms-flex-pack: center;
+          justify-content: center;
+  -webkit-align-items: center;
+      -ms-flex-align: center;
+          align-items: center;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
+  font-size: 13px;
+  visibility: hidden; }
+  #tooltip.active {
+    visibility: visible; }
