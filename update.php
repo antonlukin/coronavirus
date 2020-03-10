@@ -33,33 +33,22 @@ function send_message($text, $fault = false) {
 }
 
 
-// Parse non-China table
-function parse_table($html, $data = []) {
-    $rows = $html->find('tr');
+// Calculate data across regions
+function calculate_data($data) {
+    $calc = [];
 
-    // Set initial skip value
-    $skip = true;
+    foreach ($data as $item) {
+        $region = $item['region'];
 
-    foreach (array_slice($rows, 7, -4) as $row) {
-        $region = $row->child(1)->text();
-
-        if (preg_match('/china/i', $region)) {
-            $region = 'China';
-        }
-
-        $data[] = [
-            'region' => $region,
-            'cases' => $row->child(2)->text(),
-            'death' => $row->child(3)->text()
-        ];
     }
+
 
     return $data;
 }
 
 
-// Parse data from wiki
-function parse_data($data = []) {
+// Get csv from github
+function parse_data($data = [], $output = []) {
     $context = stream_context_create([
         'http'=> [
             'timeout' => 10,
@@ -67,37 +56,37 @@ function parse_data($data = []) {
         ]
     ]);
 
-    $page = @file_get_contents('https://docs.google.com/spreadsheets/u/0/d/e/2PACX-1vR30F8lYP3jG7YOq8es0PBpJIE5yvRVZffOyaqC0GgMBN6yt0Q-NI8pxS7hd1F9dYXnowSC6zpZmW9D/pubhtml/sheet?gid=0', false, $context);
+    $raw = 'https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_daily_reports/';
 
-    if ($page === false) {
-        throw new Exception("Can't get news page");
-    }
+    // Get csv
+    $csv = @file_get_contents($raw . date('m-d-Y', time() - 3600 * 24) . '.csv', false, $context);
 
-    $html = new DiDom\Document;
-    $html->loadHtml($page);
+    foreach (explode("\n", $csv) as $i => $row) {
+        $handle = str_getcsv($row);
 
-    // Get all tables
-    $table = $html->first('table.waffle');
-
-    // Parse data from table
-    $data = parse_table($table);
-
-    foreach($data as &$info) {
-        foreach ($info as &$field) {
-            $field = str_replace([',', '*'], '', trim($field));
-
-            if (strlen($field) === 0) {
-                $field = 0;
-            }
+        if (!array_filter($handle) || $i === 0) {
+            continue;
         }
-    }
 
+        $region = $handle[1];
+
+        if (!isset($data[$region])) {
+            $data[$region] = ['cases' => 0, 'death' => 0];
+        }
+
+        $data[$region]['cases'] += $handle[3];
+        $data[$region]['death'] += $handle[4];
+    }
 
     // Sort by cases
     $cases = array_column($data, 'cases');
     array_multisort($cases, SORT_DESC, $data);
 
-    return $data;
+    foreach ($data as $region => $info) {
+        $output[] = array_merge(['region' => $region], $info);
+    }
+
+    return $output;
 }
 
 
@@ -156,7 +145,7 @@ try {
 
     // Check buggy markup
     if (count($parsed) < 10) {
-        throw new Exception("Something broken in news page markup");
+        throw new Exception("Something broken in markup");
     }
 
     // Get current data json
