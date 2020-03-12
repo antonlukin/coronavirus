@@ -33,20 +33,6 @@ function send_message($text, $fault = false) {
 }
 
 
-// Calculate data across regions
-function calculate_data($data) {
-    $calc = [];
-
-    foreach ($data as $item) {
-        $region = $item['region'];
-
-    }
-
-
-    return $data;
-}
-
-
 // Get csv from github
 function parse_data($data = [], $output = []) {
     $context = stream_context_create([
@@ -68,7 +54,7 @@ function parse_data($data = [], $output = []) {
             continue;
         }
 
-        $region = $handle[1];
+        $region = str_replace('*', '', trim($handle[1]));
 
         if (!isset($data[$region])) {
             $data[$region] = ['cases' => 0, 'death' => 0];
@@ -81,6 +67,10 @@ function parse_data($data = [], $output = []) {
     // Sort by cases
     $cases = array_column($data, 'cases');
     array_multisort($cases, SORT_DESC, $data);
+
+    $data = array_filter($data, function($value) {
+        return array_filter($value);
+    });
 
     foreach ($data as $region => $info) {
         $output[] = array_merge(['region' => $region], $info);
