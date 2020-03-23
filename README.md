@@ -1,5 +1,5 @@
 # About
 
-Realtime 2019-nCoV (Wuhan coronavirus) (SARS-CoV-2) outbreak map.
+> This project is closed and no longer supported due to the transfer of rights to it to another owner. Thank you all for your help in creating.
 
-You can subscribe to the [Telegram channel](https://tgram.link/coronavirus_outbreak) to get an operational summary.
+Realtime 2019-nCoV (Wuhan coronavirus) (SARS-CoV-2) outbreak map.
